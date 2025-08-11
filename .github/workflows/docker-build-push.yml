@@ -1,0 +1,29 @@
+name: Build and Push Docker image   # 1️⃣ Name of the workflow
+
+on:
+  push:
+    branches: [ "main" ]            # 2️⃣ Trigger: run only when we push to the 'main' branch
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest          # 3️⃣ The machine GitHub will give us to run this job (Linux server)
+
+    steps:
+      - name: Checkout              # 4️⃣ Step: get the code from our repo into this machine
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx  # 5️⃣ Step: enable advanced Docker building
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub  # 6️⃣ Step: authenticate to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}  # 7️⃣ Securely use our Docker Hub username
+          password: ${{ secrets.DOCKERHUB_TOKEN }}     # 8️⃣ Securely use our Docker Hub token
+
+      - name: Build and push        # 9️⃣ Step: build the Docker image and push it to Docker Hub
+        uses: docker/build-push-action@v6
+        with:
+          context: .                                 # 10️⃣ Where to find our Dockerfile (current folder)
+          push: true                                 # 11️⃣ Push image after build
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/devops2025-app:latest   # 12️⃣ Name & tag for the image
